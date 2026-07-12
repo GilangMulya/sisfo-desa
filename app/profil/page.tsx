@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, type Variants } from "framer-motion";
 import { 
   History, 
   Target, 
@@ -17,11 +17,27 @@ import {
 export default function ProfilDesa() {
   const [activeTab, setActiveTab] = useState("sejarah");
 
-  const tabContentVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } },
-    exit: { opacity: 0, y: -20, transition: { duration: 0.3 } }
-  };
+  const tabContentVariants: Variants = {
+  hidden: {
+    opacity: 0,
+    y: 20,
+  },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.5,
+      ease: "easeOut",
+    },
+  },
+  exit: {
+    opacity: 0,
+    y: -20,
+    transition: {
+      duration: 0.3,
+    },
+  },
+};
 
   // Data Struktur Organisasi (Bisa dihubungkan ke Database nanti)
   const strukturPemerintahan = [
