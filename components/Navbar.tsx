@@ -2,76 +2,61 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Button } from '@/components/ui/button';
-import { Lock } from 'lucide-react';
+import { Home, BookOpen, Grid, Newspaper, Lock } from 'lucide-react';
 
 export default function Navbar() {
   const pathname = usePathname();
 
-  // NAMA MENU DIKEMBALIKAN MENJADI "Berita"
   const menuItems = [
-    { name: 'Beranda', path: '/' },
-    { name: 'Profil', path: '/profil' },
-    { name: 'Layanan', path: '/layanan' },
-    { name: 'Berita', path: '/berita' }, 
+    { name: 'Beranda', path: '/', icon: Home },
+    { name: 'Profil', path: '/profil', icon: BookOpen },
+    { name: 'Layanan', path: '/layanan', icon: Grid },
+    { name: 'Berita', path: '/berita', icon: Newspaper },
   ];
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-[#050505]/60 backdrop-blur-xl border-b border-white/5 transition-all duration-300">
-      <div className="container mx-auto max-w-6xl px-4 py-4 flex items-center justify-between">
+    <nav className="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-[92%] md:w-auto animate-fade-in-up transition-all duration-500">
+      <div className="bg-white/90 backdrop-blur-2xl border border-gray-200/60 shadow-[0_10px_40px_rgba(0,0,0,0.06)] rounded-full p-1.5 flex items-center justify-between md:justify-center gap-1 md:gap-2">
         
-        {/* Bagian Logo & Nama Desa */}
-        <div className="flex items-center gap-3 group cursor-pointer">
-          <div className="w-10 h-10 bg-white/5 rounded-xl flex items-center justify-center p-1.5 border border-white/10 overflow-hidden group-hover:border-red-500/50 transition-colors">
-            <img 
-              src="https://tse2.mm.bing.net/th/id/OIP.5x0i0xkw_T5GG8npEeUHUAHaJ_?r=0&rs=1&pid=ImgDetMain&o=7&rm=3"
-              alt="Logo" 
-              className="object-contain w-full h-full opacity-90 group-hover:opacity-100 transition-opacity" 
-            />
-          </div>
-          <div className="flex flex-col">
-            <h1 className="text-lg font-bold tracking-wide leading-tight text-white group-hover:text-red-400 transition-colors">
-              NAGARI DEMO
-            </h1>
-            <p className="text-[10px] text-slate-400 font-medium uppercase tracking-widest">
-              Kab. Pasaman
-            </p>
-          </div>
-        </div>
+        {/* Bagian Logo (Kiri) */}
+        <Link href="/" className="hidden md:flex items-center gap-2.5 pl-5 pr-6 border-r border-gray-200 mr-2 cursor-pointer focus:outline-none group">
+           <div className="w-7 h-7 rounded-full shadow-sm flex items-center justify-center overflow-hidden border border-gray-100 bg-white group-hover:scale-110 transition-transform">
+              {/* Logo Pasaman */}
+              <img 
+                src="https://tse2.mm.bing.net/th/id/OIP.5x0i0xkw_T5GG8npEeUHUAHaJ_?r=0&rs=1&pid=ImgDetMain&o=7&rm=3" 
+                alt="Logo" 
+                className="w-full h-full object-contain p-0.5" 
+              />
+           </div>
+           <span className="font-serif font-bold text-[#1A1A1A] text-lg tracking-tight group-hover:text-[#990000] transition-colors">
+             Nagari Demo
+           </span>
+        </Link>
 
-        {/* Bagian Menu Navigasi */}
-        <div className="hidden md:flex items-center gap-6 bg-white/5 px-6 py-2 rounded-full border border-white/10 shadow-inner backdrop-blur-md">
-          {menuItems.map((item) => {
-            const isActive = pathname === item.path || (item.path !== '/' && pathname.startsWith(item.path));
+        {/* Menu Navigasi Tengah */}
+        {menuItems.map((item) => {
+          const isActive = pathname === item.path || (item.path !== '/' && pathname.startsWith(item.path));
+          
+          return (
+            <Link 
+              key={item.name} 
+              href={item.path} 
+              className={`relative flex items-center px-5 py-2.5 rounded-full text-[13px] font-bold transition-all duration-300 ease-out focus:outline-none ${
+                isActive 
+                  ? 'bg-[#1A1A1A] text-white shadow-md scale-105' 
+                  : 'text-gray-500 hover:text-[#990000] hover:bg-gray-100/80'
+              }`}
+            >
+              <item.icon size={16} className={`md:mr-2 ${isActive ? 'text-[#D4AF37]' : ''}`} />
+              <span className={`${isActive ? 'block' : 'hidden md:block'}`}>{item.name}</span>
+            </Link>
+          );
+        })}
 
-            return (
-              <Link 
-                key={item.name}
-                href={item.path} 
-                // DITAMBAHKAN: focus:outline-none untuk mematikan kotak putih bawaan browser
-                className={`text-sm transition-colors relative focus:outline-none ${
-                  isActive 
-                    ? "font-semibold text-white after:absolute after:-bottom-1 after:left-0 after:w-full after:h-[2px] after:bg-red-500 after:rounded-full after:shadow-[0_0_8px_rgba(239,68,68,0.8)]" 
-                    : "font-medium text-slate-400 hover:text-white"
-                }`}
-              >
-                {item.name}
-              </Link>
-            );
-          })}
-        </div>
-
-        {/* Bagian Tombol Login Admin */}
-        <div className="flex items-center">
-          <Button 
-            variant="outline" 
-            className="bg-red-950/30 border-red-500/30 text-red-400 hover:bg-red-600 hover:text-white hover:border-red-500 transition-all duration-300 rounded-full px-5 py-2 h-auto font-medium text-sm shadow-[0_0_15px_rgba(220,38,38,0.1)] hover:shadow-[0_0_25px_rgba(220,38,38,0.5)]"
-          >
-            <Lock className="w-4 h-4 mr-2" />
-            Portal Admin
-          </Button>
-        </div>
-
+        {/* Tombol Portal Admin (Kanan) */}
+        <Link href="/admin" className="hidden lg:flex items-center gap-2 ml-2 px-6 py-2.5 rounded-full bg-[#990000] text-white text-[13px] font-bold hover:bg-[#800000] transition-all shadow-[0_4px_15px_rgba(153,0,0,0.2)] hover:shadow-[0_6px_20px_rgba(153,0,0,0.3)] focus:outline-none hover:-translate-y-0.5">
+          <Lock size={14} className="text-[#D4AF37]" /> Portal Admin
+        </Link>
       </div>
     </nav>
   );

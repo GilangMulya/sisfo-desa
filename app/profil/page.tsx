@@ -1,315 +1,226 @@
 "use client";
 
-import { useState } from "react";
-import { motion, AnimatePresence, type Variants } from "framer-motion";
+import React from 'react';
 import { 
-  History, 
   Target, 
-  Network, 
-  MapPin, 
-  Users,
-  Map,
-  Quote,
-  Phone,
-  Mail
-} from "lucide-react";
+  Award, 
+  Landmark, 
+  Users, 
+  Map, 
+  Phone, 
+  Mail, 
+  CheckCircle2,
+  CalendarDays,
+  MapPin
+} from 'lucide-react';
+
+// --- BACKGROUND COMPONENT (Premium Light) ---
+const ElegantBackground = () => (
+  <div className="fixed inset-0 z-[-1] bg-[#F9F9FB] overflow-hidden">
+    <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] bg-[#990000]/10 blur-[120px] rounded-full mix-blend-multiply animate-pulse-slow" />
+    <div className="absolute bottom-[-10%] right-[-10%] w-[70%] h-[70%] bg-[#D4AF37]/10 blur-[150px] rounded-full mix-blend-multiply animate-pulse-slow" style={{ animationDelay: '2s' }} />
+    <div className="absolute top-[40%] left-[50%] w-[40%] h-[40%] bg-blue-900/5 blur-[120px] rounded-full mix-blend-multiply" />
+    <div 
+      className="absolute inset-0 opacity-[0.4] mix-blend-color-burn pointer-events-none" 
+      style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")` }}
+    />
+  </div>
+);
+
+// --- REUSABLE PREMIUM GLASS CARD ---
+const GlassCard = ({ children, className = "", delay = "0s" }: any) => (
+  <div 
+    className={`relative group rounded-3xl bg-white/70 hover:bg-white/90 border border-gray-200/60 hover:border-[#990000]/30 backdrop-blur-2xl transition-all duration-500 overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.02)] hover:shadow-[0_20px_40px_rgba(153,0,0,0.06)] animate-fade-in-up ${className}`}
+    style={{ animationDelay: delay }}
+  >
+    <div className="absolute inset-0 bg-gradient-to-br from-white/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
+    <div className="relative z-10 h-full">{children}</div>
+  </div>
+);
+
+// ==========================================
+// DATA APARATUR DESA (Dari versi sebelumnya)
+// ==========================================
+const strukturPemerintahan = [
+  {
+    id: 1,
+    nama: "Budi Santoso",
+    jabatan: "Wali Nagari Demo 2024-2029",
+    foto: "https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=800&auto=format&fit=crop",
+    telp: "0812-3456-7890",
+    email: "budi@nagari.go.id",
+    color: "text-[#8B0000]",
+    iconColor: "border-[#8B0000] text-[#8B0000]"
+  },
+  {
+    id: 2,
+    nama: "Siti Aminah",
+    jabatan: "Sekretaris Nagari",
+    foto: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=800&auto=format&fit=crop",
+    telp: "0812-9876-5432",
+    email: "siti@nagari.go.id",
+    color: "text-[#D4AF37]",
+    iconColor: "border-[#D4AF37] text-[#D4AF37]"
+  },
+  {
+    id: 3,
+    nama: "Suryono",
+    jabatan: "Kaur Pelayanan",
+    foto: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?q=80&w=800&auto=format&fit=crop",
+    telp: "0812-3456-2233",
+    email: "suryono@nagari.go.id",
+    color: "text-blue-700",
+    iconColor: "border-blue-700 text-blue-700"
+  },
+  {
+    id: 4,
+    nama: "Andi Saputra",
+    jabatan: "Kaur Pemerintahan",
+    foto: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=800&auto=format&fit=crop",
+    telp: "0812-3456-4455",
+    email: "andi@nagari.go.id",
+    color: "text-emerald-700",
+    iconColor: "border-emerald-700 text-emerald-700"
+  }
+];
 
 export default function ProfilDesa() {
-  const [activeTab, setActiveTab] = useState("sejarah");
-
-  const tabContentVariants: Variants = {
-  hidden: {
-    opacity: 0,
-    y: 20,
-  },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.5,
-      ease: "easeOut",
-    },
-  },
-  exit: {
-    opacity: 0,
-    y: -20,
-    transition: {
-      duration: 0.3,
-    },
-  },
-};
-
-  // Data Struktur Organisasi (Bisa dihubungkan ke Database nanti)
-  const strukturPemerintahan = [
-    {
-      id: 1,
-      nama: "Budi Santoso",
-      jabatan: "Wali Nagari Demo 2024-2029",
-      foto: "https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=800&auto=format&fit=crop",
-      telp: "0812-3456-7890",
-      email: "budi@nagari.go.id",
-      level: "utama"
-    },
-    {
-      id: 2,
-      nama: "Siti Aminah",
-      jabatan: "SEKRETARIS NAGARI",
-      foto: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=800&auto=format&fit=crop",
-      telp: "0812-9876-5432",
-      email: "siti@nagari.go.id",
-      level: "menengah"
-    },
-    {
-      id: 3,
-      nama: "Suryono",
-      jabatan: "KAUR PELAYANAN",
-      foto: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?q=80&w=800&auto=format&fit=crop",
-      telp: "0812-3456-2233",
-      email: "suryono@nagari.go.id",
-      level: "dasar"
-    },
-    {
-      id: 4,
-      nama: "Andi Saputra",
-      jabatan: "KAUR PEMERINTAHAN",
-      foto: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=800&auto=format&fit=crop",
-      telp: "0812-3456-4455",
-      email: "andi@nagari.go.id",
-      level: "dasar"
-    }
-  ];
-
   return (
-    <main className="relative min-h-screen bg-[#050505] overflow-hidden pt-20 pb-24 font-sans text-slate-300">
+    <main className="relative min-h-screen text-[#1A1A1A] selection:bg-[#990000] selection:text-white pt-32 pb-24 px-4 md:px-6 max-w-[1400px] mx-auto">
       
-      {/* 1. HERO SECTION */}
-      <div className="relative h-[45vh] lg:h-[60vh] w-full flex items-center justify-center">
-        <div className="absolute inset-0 z-0 bg-[#050505]">
-          <img 
-            src="https://images.unsplash.com/photo-1518548419970-58e3b4079ab2?q=80&w=2070&auto=format&fit=crop" 
-            alt="Lanskap Pasaman" 
-            className="w-full h-full object-cover opacity-40" 
-          />
-        </div>
-        <div className="absolute inset-0 z-10 bg-gradient-to-b from-[#050505]/90 via-transparent to-[#050505]"></div>
+      {/* Injecting CSS Animations & Fonts */}
+      <style dangerouslySetInnerHTML={{__html: `
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,800;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+        .font-serif { font-family: 'Playfair Display', serif; }
+        .font-sans { font-family: 'Plus Jakarta Sans', sans-serif; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in-up { opacity: 0; animation: fadeInUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        @keyframes pulseSlow { 0%, 100% { transform: scale(1); opacity: 0.6; } 50% { transform: scale(1.05); opacity: 0.3; } }
+        .animate-pulse-slow { animation: pulseSlow 8s infinite ease-in-out; }
+      `}} />
 
-        <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} className="relative z-20 text-center px-4 mt-10">
-          <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 rounded-full px-5 py-1.5 backdrop-blur-md mb-4 shadow-xl">
-            <span className="text-xs font-bold tracking-widest text-white uppercase">Profil Desa</span>
-          </div>
-          <h1 className="text-4xl md:text-6xl font-extrabold text-white tracking-tight drop-shadow-2xl">
-            Selayang <span className="text-red-500">Pandang</span>
-          </h1>
-        </motion.div>
+      <ElegantBackground />
+
+      {/* ========================================================= */}
+      {/* HEADER SECTION */}
+      {/* ========================================================= */}
+      <div className="mb-10 text-center animate-fade-in-up mt-10">
+        <p className="text-xs font-bold tracking-[0.3em] text-[#990000] uppercase mb-3">Selayang Pandang</p>
+        <h2 className="text-5xl md:text-7xl font-serif font-bold text-[#1A1A1A] mb-6">Profil Nagari Demo</h2>
+        <div className="w-24 h-1 bg-gradient-to-r from-[#990000] to-[#D4AF37] mx-auto rounded-full" />
       </div>
 
-      {/* 2. FLOATING TABS NAVIGATION */}
-      <div className="container relative z-30 mx-auto max-w-4xl px-4 -mt-8 flex justify-center">
-        <div className="bg-[#0a0a0a]/80 backdrop-blur-xl border border-white/10 p-1.5 rounded-full flex items-center shadow-2xl w-full max-w-2xl">
-          <button onClick={() => setActiveTab("sejarah")} className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-full text-sm font-semibold transition-all duration-300 ${activeTab === "sejarah" ? "bg-red-600 text-white shadow-lg shadow-red-600/30" : "text-slate-400 hover:text-white hover:bg-white/5"}`}>
-            <History className="w-4 h-4" /> <span className="hidden sm:inline">Sejarah Desa</span><span className="sm:hidden">Sejarah</span>
-          </button>
-          <button onClick={() => setActiveTab("visi")} className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-full text-sm font-semibold transition-all duration-300 ${activeTab === "visi" ? "bg-red-600 text-white shadow-lg shadow-red-600/30" : "text-slate-400 hover:text-white hover:bg-white/5"}`}>
-            <Target className="w-4 h-4" /> Visi & Misi
-          </button>
-          <button onClick={() => setActiveTab("struktur")} className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-full text-sm font-semibold transition-all duration-300 ${activeTab === "struktur" ? "bg-red-600 text-white shadow-lg shadow-red-600/30" : "text-slate-400 hover:text-white hover:bg-white/5"}`}>
-            <Network className="w-4 h-4" /> <span className="hidden sm:inline">Struktur Organisasi</span><span className="sm:hidden">Struktur</span>
-          </button>
-        </div>
-      </div>
-
-      {/* 3. DYNAMIC CONTENT SECTION */}
-      <div className="container mx-auto max-w-6xl px-4 mt-16 min-h-[60vh]">
-        <AnimatePresence mode="wait">
-          
-          {/* ============================== */}
-          {/* TAB 1: SEJARAH DESA (Bento Grid) */}
-          {/* ============================== */}
-          {activeTab === "sejarah" && (
-            <motion.div key="sejarah" variants={tabContentVariants} initial="hidden" animate="visible" exit="exit" className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-              
-              {/* Kiri: Teks Sejarah & Statistik */}
-              <div className="flex flex-col gap-8">
-                <div>
-                  <h2 className="text-3xl md:text-4xl font-extrabold text-white mb-6">Sejarah Desa</h2>
-                  <div className="space-y-4 text-slate-400 leading-relaxed text-lg">
-                    <p>
-                      Nagari Demo 1111 didirikan pada tahun 1932 oleh sekelompok petani pelopor yang dipimpin oleh Budi Santoso. Berawal dari pemukiman agraris kecil di kaki pegunungan, wilayah ini lambat laun bertransformasi menjadi salah satu lumbung pangan andalan wilayah kabupaten berkat kesuburan tanah dan budaya gotong royong warganya yang lestari hingga kini.
-                    </p>
-                  </div>
-                </div>
-                
-                {/* Kotak Statistik */}
-                <div className="grid grid-cols-2 gap-4 mt-2">
-                  <div className="bg-white/5 border border-white/10 rounded-3xl p-6 flex flex-col items-center justify-center text-center hover:bg-white/10 transition-colors">
-                    <div className="w-12 h-12 bg-blue-500/20 rounded-full flex items-center justify-center mb-4 text-blue-400">
-                      <Users className="w-6 h-6" />
-                    </div>
-                    <h3 className="text-3xl font-extrabold text-white mb-1">12.540</h3>
-                    <p className="text-xs font-bold tracking-widest text-slate-500 uppercase">Total Penduduk</p>
-                  </div>
-                  <div className="bg-white/5 border border-white/10 rounded-3xl p-6 flex flex-col items-center justify-center text-center hover:bg-white/10 transition-colors">
-                    <div className="w-12 h-12 bg-emerald-500/20 rounded-full flex items-center justify-center mb-4 text-emerald-400">
-                      <Map className="w-6 h-6" />
-                    </div>
-                    <h3 className="text-3xl font-extrabold text-white mb-1">18.4 <span className="text-xl">km²</span></h3>
-                    <p className="text-xs font-bold tracking-widest text-slate-500 uppercase">Luas Wilayah</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Kanan: Peta & Galeri Kecil */}
-              <div className="flex flex-col gap-4">
-                <div className="relative h-[300px] md:h-[400px] rounded-3xl overflow-hidden border border-white/10 group">
-                  <img src="https://images.unsplash.com/photo-1524661135-423995f22d0b?q=80&w=1000&auto=format&fit=crop" alt="Peta Nagari" className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-1000" />
-                  <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors duration-500"></div>
-                  
-                  {/* Floating Coordinate Card */}
-                  <div className="absolute bottom-6 left-6 right-6 bg-white/90 backdrop-blur-md rounded-2xl p-4 flex items-center gap-4 shadow-2xl">
-                    <div className="bg-red-100 p-3 rounded-full text-red-600">
-                      <MapPin className="w-6 h-6" />
-                    </div>
-                    <div>
-                      <p className="text-[10px] font-bold text-slate-400 tracking-wider uppercase mb-0.5">Titik Koordinat</p>
-                      <p className="text-sm font-bold text-slate-800 font-mono">0° 12' 34" N, 100° 23' 45" E</p>
-                    </div>
-                  </div>
-                </div>
-                
-                {/* Thumbnail Galeri */}
-                <div className="grid grid-cols-2 gap-4 h-[120px]">
-                  <div className="rounded-2xl overflow-hidden border border-white/10"><img src="https://images.unsplash.com/photo-1592663481284-c68e9e19d2b2?q=80&w=600&auto=format&fit=crop" className="w-full h-full object-cover hover:scale-110 transition-transform duration-500" alt="Galeri 1" /></div>
-                  <div className="rounded-2xl overflow-hidden border border-white/10"><img src="https://images.unsplash.com/photo-1542361345-89e58247f2d5?q=80&w=600&auto=format&fit=crop" className="w-full h-full object-cover hover:scale-110 transition-transform duration-500" alt="Galeri 2" /></div>
-                </div>
-              </div>
-
-            </motion.div>
-          )}
-
-          {/* ============================== */}
-          {/* TAB 2: VISI & MISI */}
-          {/* ============================== */}
-          {activeTab === "visi" && (
-            <motion.div key="visi" variants={tabContentVariants} initial="hidden" animate="visible" exit="exit" className="grid grid-cols-1 lg:grid-cols-5 gap-8">
-              
-              {/* Kiri: Blok Visi Merah Premium */}
-              <div className="lg:col-span-2 bg-gradient-to-br from-red-700 to-red-950 rounded-[40px] p-10 md:p-12 relative overflow-hidden flex flex-col justify-center border border-red-500/30 shadow-[0_0_40px_rgba(220,38,38,0.15)]">
-                <Quote className="absolute top-10 left-10 w-40 h-40 text-white/[0.05] -rotate-12" />
-                <span className="inline-block px-4 py-1.5 bg-black/20 rounded-full text-white text-xs font-bold tracking-widest uppercase w-max mb-8 backdrop-blur-md border border-white/10">Visi Desa</span>
-                <p className="text-2xl md:text-3xl lg:text-4xl leading-snug italic text-white font-medium relative z-10 drop-shadow-md">
-                  "Mewujudkan Nagari Demo yang mandiri, sejahtera, berakhlak mulia, dan unggul dalam pelayanan publik berbasis teknologi informasi 1."
-                </p>
-              </div>
-
-              {/* Kanan: List Misi */}
-              <div className="lg:col-span-3 bg-white/5 border border-white/10 rounded-[40px] p-8 md:p-12">
-                <span className="inline-block px-4 py-1.5 bg-red-500/10 text-red-400 rounded-full text-xs font-bold tracking-widest uppercase mb-8 border border-red-500/20">Misi Utama</span>
-                
-                <div className="space-y-8">
-                  {[
-                    "Meningkatkan tata kelola pemerintahan desa yang bersih, transparan, dan akuntabel 1.",
-                    "Mengembangkan infrastruktur pertanian dan transportasi pedesaan guna meningkatkan roda ekonomi warga.",
-                    "Memberikan layanan administrasi publik yang prima, cepat, dan mudah diakses melalui platform digital.",
-                    "Mendorong kreativitas dan keterlibatan aktif warga dalam pelestarian budaya dan lingkungan."
-                  ].map((misi, idx) => (
-                    <div key={idx} className="flex gap-6 items-start group">
-                      <div className="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center shrink-0 text-xl font-black text-slate-500 group-hover:bg-red-600 group-hover:text-white group-hover:border-red-500 transition-all duration-300 shadow-lg">
-                        {idx + 1}
-                      </div>
-                      <p className="text-slate-300 text-lg leading-relaxed mt-2 group-hover:text-white transition-colors">
-                        {misi}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-            </motion.div>
-          )}
-
-          {/* ============================== */}
-          {/* TAB 3: STRUKTUR ORGANISASI */}
-          {/* ============================== */}
-          {activeTab === "struktur" && (
-            <motion.div key="struktur" variants={tabContentVariants} initial="hidden" animate="visible" exit="exit" className="flex flex-col items-center">
-              
-              <div className="text-center mb-16">
-                <span className="inline-block px-4 py-1.5 bg-red-500/10 text-red-400 rounded-full text-xs font-bold tracking-widest uppercase mb-4 border border-red-500/20">Aparatur Desa</span>
-                <h2 className="text-3xl md:text-5xl font-extrabold text-white mb-4">Struktur Pemerintahan</h2>
-                <p className="text-slate-400 max-w-2xl mx-auto">Mengenal lebih dekat sosok-sosok yang mengabdi untuk kemajuan dan kesejahteraan masyarakat desa.</p>
-              </div>
-
-              {/* Grid Hirarki Struktur (Flex Column -> Grid) */}
-              <div className="w-full flex flex-col items-center gap-12">
-                
-                {/* Level 1: Wali Nagari */}
-                <div className="flex justify-center w-full">
-                  <OrgCard person={strukturPemerintahan[0]} />
-                </div>
-
-                {/* Level 2: Sekretaris */}
-                <div className="flex justify-center w-full relative">
-                  {/* Garis penghubung vertikal simulasi */}
-                  <div className="absolute -top-12 left-1/2 w-[2px] h-12 bg-white/10"></div>
-                  <OrgCard person={strukturPemerintahan[1]} />
-                </div>
-
-                {/* Level 3: Kaur (Grid 2 Kolom) */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-3xl relative">
-                   {/* Garis penghubung simulasi */}
-                  <div className="absolute -top-12 left-1/4 right-1/4 h-[2px] bg-white/10 hidden md:block"></div>
-                  <div className="absolute -top-12 left-1/4 w-[2px] h-12 bg-white/10 hidden md:block"></div>
-                  <div className="absolute -top-12 right-1/4 w-[2px] h-12 bg-white/10 hidden md:block"></div>
-
-                  <OrgCard person={strukturPemerintahan[2]} />
-                  <OrgCard person={strukturPemerintahan[3]} />
-                </div>
-
-              </div>
-            </motion.div>
-          )}
-
-        </AnimatePresence>
-      </div>
-
-    </main>
-  );
-}
-
-// Komponen Card Struktur Organisasi dengan Efek Hover Reveal Kontak
-function OrgCard({ person }: { person: any }) {
-  return (
-    <div className="group relative w-[280px] h-[360px] bg-white/5 border border-white/10 rounded-[40px] overflow-hidden cursor-pointer shadow-xl">
-      {/* Foto Profil */}
-      <img src={person.foto} alt={person.nama} className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-110" />
-      
-      {/* Overlay Gelap Bawah (Default) */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent flex flex-col justify-end p-6 items-center text-center transition-opacity duration-300 group-hover:opacity-0">
-        <h3 className="text-xl font-bold text-white mb-2">{person.nama}</h3>
-        <span className="px-4 py-1.5 bg-red-600 rounded-full text-[10px] font-extrabold tracking-widest text-white uppercase shadow-lg">
-          {person.jabatan}
-        </span>
-      </div>
-
-      {/* Overlay Hover (Reveals Contact Info) */}
-      <div className="absolute inset-0 bg-[#0a0a0a]/95 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all duration-300 flex flex-col items-center justify-center p-6 border border-red-500/50 rounded-[40px]">
-        <span className="px-3 py-1 bg-red-600 rounded-full text-[10px] font-bold tracking-widest text-white uppercase mb-6">Info Kontak</span>
-        <div className="flex flex-col gap-4 text-center">
-          <div className="flex items-center justify-center gap-3 text-slate-300 hover:text-amber-400 transition-colors">
-            <Phone className="w-5 h-5 text-amber-500" />
-            <span className="font-medium text-sm">{person.telp}</span>
-          </div>
-          <div className="flex items-center justify-center gap-3 text-slate-300 hover:text-amber-400 transition-colors">
-            <Mail className="w-5 h-5 text-amber-500" />
-            <span className="font-medium text-sm">{person.email}</span>
-          </div>
-        </div>
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-5 auto-rows-min">
         
-        {/* Mengulangi Nama di dalam hover agar tetap tahu ini siapa */}
-        <div className="absolute bottom-6">
-           <h3 className="text-sm font-bold text-white/50">{person.nama}</h3>
+        {/* ========================================================= */}
+        {/* VISI & MISI CARD (Dark Crimson) */}
+        {/* ========================================================= */}
+        <GlassCard delay="0.1s" className="md:col-span-4 p-8 md:p-10 bg-gradient-to-br from-[#990000] to-[#660000] text-white border-none shadow-xl flex flex-col justify-center relative overflow-hidden">
+          <div className="absolute top-[-20%] right-[-20%] w-64 h-64 border-[40px] border-white/5 rounded-full" />
+          <Target size={40} className="text-[#D4AF37] mb-6" />
+          <h3 className="text-3xl md:text-4xl font-serif font-bold mb-4">Visi Nagari</h3>
+          <p className="text-white/90 text-sm leading-relaxed mb-8 italic font-medium">
+            "Mewujudkan Nagari Demo yang mandiri, sejahtera, berakhlak mulia, dan unggul dalam pelayanan publik berbasis teknologi informasi 1."
+          </p>
+          
+          <h4 className="text-lg font-bold mb-4 flex items-center gap-2">
+            <Award size={18} className="text-[#D4AF37]" /> Misi Utama
+          </h4>
+          <ul className="space-y-4 text-sm text-white/90">
+            <li className="flex items-start gap-3">
+              <div className="w-1.5 h-1.5 rounded-full bg-[#D4AF37] mt-1.5 shrink-0" /> 
+              Meningkatkan tata kelola pemerintahan desa yang bersih, transparan, dan akuntabel 1.
+            </li>
+            <li className="flex items-start gap-3">
+              <div className="w-1.5 h-1.5 rounded-full bg-[#D4AF37] mt-1.5 shrink-0" /> 
+              Mengembangkan infrastruktur pertanian dan transportasi pedesaan guna meningkatkan roda ekonomi warga.
+            </li>
+            <li className="flex items-start gap-3">
+              <div className="w-1.5 h-1.5 rounded-full bg-[#D4AF37] mt-1.5 shrink-0" /> 
+              Memberikan layanan administrasi publik yang prima, cepat, dan mudah diakses melalui platform digital.
+            </li>
+            <li className="flex items-start gap-3">
+              <div className="w-1.5 h-1.5 rounded-full bg-[#D4AF37] mt-1.5 shrink-0" /> 
+              Mendorong kreativitas dan keterlibatan aktif warga dalam pelestarian budaya dan lingkungan.
+            </li>
+          </ul>
+        </GlassCard>
+
+        {/* ========================================================= */}
+        {/* SEJARAH & ASAL USUL CARD */}
+        {/* ========================================================= */}
+        <GlassCard delay="0.2s" className="md:col-span-8 p-8 md:p-12 flex flex-col justify-between">
+          <div>
+            <div className="flex items-center gap-3 mb-6">
+              <Landmark size={32} className="text-[#990000]" />
+              <h3 className="text-3xl md:text-4xl font-serif font-bold text-[#1A1A1A]">Sejarah Desa</h3>
+            </div>
+            <div className="prose prose-sm md:prose-base text-gray-600 max-w-none space-y-5 leading-relaxed">
+              <p>
+                Nagari Demo 1111 didirikan pada tahun 1932 oleh sekelompok petani pelopor yang dipimpin oleh Budi Santoso. Berawal dari pemukiman agraris kecil di kaki pegunungan, wilayah ini lambat laun bertransformasi menjadi salah satu lumbung pangan andalan wilayah kabupaten berkat kesuburan tanah dan budaya gotong royong warganya yang lestari hingga kini.
+              </p>
+            </div>
+          </div>
+          
+          {/* Statistik Info Desa */}
+          <div className="mt-10 grid grid-cols-2 md:grid-cols-4 gap-6 pt-8 border-t border-gray-200/60">
+            <div>
+              <p className="text-4xl font-black text-[#1A1A1A] mb-1 font-serif">1932</p>
+              <p className="text-[10px] font-bold text-[#990000] uppercase tracking-widest flex items-center gap-1"><CalendarDays size={12}/> Tahun Berdiri</p>
+            </div>
+            <div>
+              <p className="text-4xl font-black text-[#1A1A1A] mb-1 font-serif">18.4<span className="text-xl text-gray-400">km²</span></p>
+              <p className="text-[10px] font-bold text-[#990000] uppercase tracking-widest flex items-center gap-1"><Map size={12}/> Luas Wilayah</p>
+            </div>
+            <div>
+              <p className="text-4xl font-black text-[#1A1A1A] mb-1 font-serif">12.540</p>
+              <p className="text-[10px] font-bold text-[#990000] uppercase tracking-widest flex items-center gap-1"><Users size={12}/> Total Penduduk</p>
+            </div>
+            <div>
+              <p className="text-sm font-mono font-bold text-[#1A1A1A] mb-1 tracking-tighter leading-tight mt-1">0° 12' 34" N<br/>100° 23' 45" E</p>
+              <p className="text-[10px] font-bold text-[#990000] uppercase tracking-widest flex items-center gap-1 mt-2.5"><MapPin size={12}/> Titik Koordinat</p>
+            </div>
+          </div>
+        </GlassCard>
+
+        {/* ========================================================= */}
+        {/* STRUKTUR PEMERINTAHAN (Aparatur Desa) */}
+        {/* ========================================================= */}
+        <div className="md:col-span-12 mt-12 mb-4 animate-fade-in-up text-center md:text-left" style={{ animationDelay: '0.3s' }}>
+          <h3 className="text-3xl md:text-4xl font-serif font-bold text-[#1A1A1A] mb-3">Struktur Pemerintahan</h3>
+          <p className="text-sm md:text-base text-gray-500">
+            Mengenal lebih dekat sosok-sosok yang mengabdi untuk kemajuan dan kesejahteraan masyarakat desa.
+          </p>
         </div>
+
+        {/* Grid Aparatur Berdasarkan Desain Baru */}
+        {strukturPemerintahan.map((person, idx) => (
+          <GlassCard key={person.id} delay={`0.${4 + idx}s`} className="col-span-1 md:col-span-6 lg:col-span-3 p-6 flex flex-col items-start group">
+            
+            {/* Foto Profil Circle & Border */}
+            <div className={`w-14 h-14 rounded-full bg-white shadow-sm flex items-center justify-center mb-5 border overflow-hidden group-hover:scale-110 transition-transform ${person.iconColor}`}>
+              <img src={person.foto} alt={person.nama} className="w-full h-full object-cover object-top" />
+            </div>
+            
+            <h4 className="text-xl font-bold text-[#1A1A1A] mb-2">{person.nama}</h4>
+            <p className="text-[11px] font-extrabold uppercase tracking-widest text-gray-400 mb-4 leading-relaxed line-clamp-2">
+              {person.jabatan}
+            </p>
+            
+            {/* Info Kontak Ringkas */}
+            <div className="w-full pt-4 mt-auto border-t border-gray-100 flex flex-col gap-2">
+              <div className="flex items-center gap-2 text-[11px] font-medium text-gray-500">
+                <Phone size={12} className={person.color} /> {person.telp}
+              </div>
+              <div className="flex items-center gap-2 text-[11px] font-medium text-gray-500">
+                <Mail size={12} className={person.color} /> {person.email}
+              </div>
+            </div>
+            
+          </GlassCard>
+        ))}
+
       </div>
-    </div>
+    </main>
   );
 }

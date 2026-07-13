@@ -8,11 +8,48 @@ import {
   Eye, 
   Flame, 
   Zap,
-  ArrowRight
+  ArrowRight,
+  Newspaper
 } from "lucide-react";
 import Link from "next/link";
 
-// Simulasi Database Berita
+// --- BACKGROUND COMPONENT (Premium Light) ---
+const ElegantBackground = () => (
+  <div className="fixed inset-0 z-[-1] bg-[#F9F9FB] overflow-hidden">
+    <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] bg-[#990000]/10 blur-[120px] rounded-full mix-blend-multiply animate-pulse-slow" />
+    <div className="absolute bottom-[-10%] right-[-10%] w-[70%] h-[70%] bg-[#D4AF37]/10 blur-[150px] rounded-full mix-blend-multiply animate-pulse-slow" style={{ animationDelay: '2s' }} />
+    <div className="absolute top-[40%] left-[50%] w-[40%] h-[40%] bg-blue-900/5 blur-[120px] rounded-full mix-blend-multiply" />
+    <div 
+      className="absolute inset-0 opacity-[0.4] mix-blend-color-burn pointer-events-none" 
+      style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")` }}
+    />
+  </div>
+);
+
+// --- REUSABLE PREMIUM GLASS CARD ---
+const GlassCard = ({ children, className = "", href, delay = "0s" }: any) => {
+  const classes = `relative group rounded-3xl bg-white/70 hover:bg-white/90 border border-gray-200/60 hover:border-[#990000]/30 backdrop-blur-2xl transition-all duration-500 overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.02)] hover:shadow-[0_20px_40px_rgba(153,0,0,0.06)] animate-fade-in-up ${href ? 'cursor-pointer hover:-translate-y-1.5' : ''} ${className}`;
+
+  if (href) {
+    return (
+      <Link href={href} className={classes} style={{ animationDelay: delay }}>
+        <div className="absolute inset-0 bg-gradient-to-br from-white/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
+        <div className="relative z-10 h-full">{children}</div>
+      </Link>
+    );
+  }
+
+  return (
+    <div className={classes} style={{ animationDelay: delay }}>
+      <div className="absolute inset-0 bg-gradient-to-br from-white/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
+      <div className="relative z-10 h-full">{children}</div>
+    </div>
+  );
+};
+
+// ==========================================
+// DATABASE BERITA (Tetap Menggunakan Data Lama)
+// ==========================================
 const dataBerita = [
   {
     id: 1,
@@ -78,50 +115,54 @@ export default function WartaDesa() {
   const trendingBerita = [...dataBerita].sort((a, b) => b.views - a.views).slice(0, 3); 
 
   return (
-    <main className="relative min-h-screen bg-[#050505] overflow-hidden pt-32 pb-24 font-sans text-slate-300">
+    <main className="relative min-h-screen text-[#1A1A1A] selection:bg-[#990000] selection:text-white pt-32 pb-24 px-4 md:px-6 max-w-[1400px] mx-auto">
       
-      {/* Background Ambient Clean */}
-      <div className="absolute top-0 right-1/4 w-[600px] h-[600px] bg-red-900/10 rounded-full blur-[150px] mix-blend-screen pointer-events-none z-0"></div>
-      <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10 pointer-events-none z-0"></div>
+      {/* Injecting CSS Animations & Fonts */}
+      <style dangerouslySetInnerHTML={{__html: `
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,800;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+        .font-serif { font-family: 'Playfair Display', serif; }
+        .font-sans { font-family: 'Plus Jakarta Sans', sans-serif; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in-up { opacity: 0; animation: fadeInUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        @keyframes pulseSlow { 0%, 100% { transform: scale(1); opacity: 0.6; } 50% { transform: scale(1.05); opacity: 0.3; } }
+        .animate-pulse-slow { animation: pulseSlow 8s infinite ease-in-out; }
+      `}} />
 
-      <div className="container relative z-10 mx-auto max-w-6xl px-4">
+      <ElegantBackground />
+
+      {/* ========================================================= */}
+      {/* HEADER: KABA NAGARI */}
+      {/* ========================================================= */}
+      <div className="mb-10 text-center animate-fade-in-up mt-10">
+        <p className="text-xs font-bold tracking-[0.3em] text-[#990000] uppercase mb-3">Pusat Informasi</p>
+        <h2 className="text-5xl md:text-7xl font-serif font-bold text-[#1A1A1A] mb-6">Warta Desa</h2>
+        <div className="w-24 h-1 bg-gradient-to-r from-[#990000] to-[#D4AF37] mx-auto rounded-full mb-10" />
         
-        {/* ========================================================= */}
-        {/* HEADER: WARTA DESA */}
-        {/* ========================================================= */}
-        <div className="flex flex-col items-center text-center mb-12">
-          <span className="text-red-500 font-bold tracking-widest text-xs uppercase mb-4">
-            Pusat Informasi
-          </span>
-          <h1 className="text-4xl md:text-6xl font-extrabold text-white tracking-tight mb-6">
-            Warta <span className="text-red-500">Desa</span>
-          </h1>
-          <p className="text-slate-400 max-w-2xl text-base mb-10 leading-relaxed">
-            Dapatkan pembaruan langsung, cepat, dan terpercaya mengenai agenda nagari, pengumuman darurat, serta progres pembangunan.
-          </p>
-
-          {/* SEARCH BAR (Minimalist) */}
-          <div className="relative w-full max-w-md mb-8 group">
-            <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-red-500 transition-colors" />
+        {/* PENCARIAN & FILTER KATEGORI */}
+        <div className="w-full max-w-4xl mx-auto bg-white/70 border border-gray-200/60 p-2 md:p-3 rounded-3xl md:rounded-full backdrop-blur-md flex flex-col md:flex-row gap-4 items-center shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
+          
+          {/* Kolom Cari */}
+          <div className="relative w-full md:w-1/3 shrink-0">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
             <input 
               type="text" 
-              placeholder="Cari judul atau isi berita..." 
+              placeholder="Cari berita..." 
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-white/5 border border-white/10 text-white rounded-full py-3 pl-12 pr-6 text-sm focus:outline-none focus:border-red-500/50 focus:bg-white/10 transition-all shadow-sm placeholder:text-slate-600"
+              className="w-full bg-white/80 border border-gray-200 text-[#1A1A1A] rounded-full py-2.5 pl-11 pr-4 text-sm font-medium focus:outline-none focus:border-[#990000]/50 transition-colors placeholder:text-gray-400"
             />
           </div>
 
-          {/* KATEGORI TABS (Scrollbar Disembunyikan) */}
-          <div className="w-full max-w-3xl flex items-center justify-start md:justify-center overflow-x-auto gap-2 pb-2 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+          {/* Kategori Horizontal */}
+          <div className="flex-1 w-full overflow-x-auto flex items-center gap-2 pb-2 md:pb-0 px-2 md:px-0 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
             {daftarKategori.map((kategori) => (
               <button
                 key={kategori}
                 onClick={() => setActiveCategory(kategori)}
-                className={`shrink-0 px-5 py-2 rounded-full text-sm font-medium transition-all duration-300 border ${
+                className={`shrink-0 px-4 py-2 rounded-full text-sm font-bold transition-all duration-300 ${
                   activeCategory === kategori 
-                    ? "bg-red-600/10 border-red-500/50 text-red-400" 
-                    : "bg-transparent border-transparent text-slate-500 hover:text-slate-300 hover:bg-white/5"
+                    ? "bg-[#1A1A1A] text-white shadow-md" 
+                    : "bg-transparent text-gray-500 hover:text-[#990000] hover:bg-gray-100"
                 }`}
               >
                 {kategori}
@@ -129,135 +170,145 @@ export default function WartaDesa() {
             ))}
           </div>
         </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-5 relative z-10">
 
         {/* ========================================================= */}
-        {/* SEKSI ATAS: TERKINI & TERPOPULER */}
+        {/* SEKSI ATAS: TERKINI & TERPOPULER (Hanya tampil di Tab "Semua") */}
         {/* ========================================================= */}
         {activeCategory === "Semua" && searchQuery === "" && (
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-20">
-            
-            {/* Terkini */}
-            <div className="lg:col-span-8 flex flex-col">
-              <h2 className="text-lg font-bold text-white mb-5 flex items-center gap-2 tracking-wide">
-                <Zap className="w-4 h-4 text-red-500" /> Terkini
-              </h2>
-              <Link href={`/berita/${beritaUtama.id}`} className="group relative h-[450px] rounded-3xl overflow-hidden border border-white/10 block">
-                <img 
-                  src={beritaUtama.gambar} 
-                  alt={beritaUtama.judul} 
-                  className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-1000 ease-out opacity-80"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent"></div>
-                
-                <div className="absolute bottom-0 left-0 w-full p-8 z-10 flex flex-col justify-end">
-                  <span className="inline-block px-3 py-1 bg-white/10 backdrop-blur-md text-red-400 border border-red-500/20 text-[10px] font-bold uppercase tracking-wider rounded-md w-max mb-3">
-                    {beritaUtama.kategori}
-                  </span>
-                  <h3 className="text-2xl md:text-3xl font-bold text-white mb-3 leading-tight group-hover:text-red-400 transition-colors">
-                    {beritaUtama.judul}
-                  </h3>
-                  <div className="flex items-center gap-4 text-[11px] font-medium text-slate-400">
-                    <span className="flex items-center"><CalendarDays className="w-3 h-3 mr-1.5" /> {beritaUtama.tanggal}</span>
-                    <span className="flex items-center"><Eye className="w-3 h-3 mr-1.5" /> {beritaUtama.views} kali dibaca</span>
-                  </div>
-                </div>
-              </Link>
-            </div>
+          <>
+            {/* Terkini Card */}
+            <GlassCard href={`/berita/${beritaUtama.id}`} delay="0.1s" className="md:col-span-8 p-0 bg-[#1A1A1A] hover:bg-[#111] border-none group relative overflow-hidden h-[450px]">
+              <img 
+                src={beritaUtama.gambar} 
+                alt={beritaUtama.judul} 
+                className="absolute inset-0 w-full h-full object-cover opacity-80 mix-blend-luminosity group-hover:scale-105 group-hover:opacity-100 transition-all duration-1000"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] via-[#1A1A1A]/50 to-transparent opacity-90" />
+              
+              <div className="absolute top-6 left-6">
+                <span className="bg-[#990000] text-white text-[10px] font-bold px-3 py-1.5 rounded-lg uppercase tracking-widest shadow-sm">
+                  {beritaUtama.kategori}
+                </span>
+              </div>
 
-            {/* Terpopuler */}
-            <div className="lg:col-span-4 flex flex-col">
-              <h2 className="text-lg font-bold text-white mb-5 flex items-center gap-2 tracking-wide">
-                <Flame className="w-4 h-4 text-amber-500" /> Terpopuler
-              </h2>
-              <div className="bg-white/5 border border-white/10 rounded-3xl p-6 flex flex-col gap-6 h-[450px]">
+              <div className="absolute bottom-0 left-0 p-8 md:p-10 w-full z-10 flex flex-col justify-end">
+                <h2 className="text-3xl md:text-4xl font-serif font-bold text-white mb-3 leading-snug group-hover:text-[#D4AF37] transition-colors">
+                  {beritaUtama.judul}
+                </h2>
+                <div className="flex items-center gap-4 text-xs font-bold text-gray-300 mb-4">
+                  <span className="flex items-center gap-1.5"><CalendarDays size={14}/> {beritaUtama.tanggal}</span>
+                  <span className="w-1 h-1 bg-gray-500 rounded-full" />
+                  <span className="flex items-center gap-1.5"><Eye size={14}/> {beritaUtama.views} Kali dibaca</span>
+                </div>
+                <p className="text-gray-300 text-sm max-w-2xl line-clamp-2 leading-relaxed">
+                  {beritaUtama.excerpt}
+                </p>
+              </div>
+            </GlassCard>
+
+            {/* Terpopuler Widget */}
+            <GlassCard delay="0.2s" className="md:col-span-4 p-6 md:p-8 flex flex-col justify-between h-[450px]">
+              <div className="flex items-center gap-2 mb-6 border-b border-gray-200 pb-4">
+                <Flame size={20} className="text-[#990000]" />
+                <h3 className="text-xl font-serif font-bold text-[#1A1A1A]">Terpopuler</h3>
+              </div>
+              
+              <div className="flex flex-col gap-6 overflow-y-auto pr-2 custom-scrollbar">
                 {trendingBerita.map((berita, index) => (
-                  <Link href={`/berita/${berita.id}`} key={berita.id} className="group flex items-start gap-4 p-2 rounded-xl transition-colors">
-                    <div className="text-3xl font-black text-white/10 group-hover:text-red-500/20 transition-colors duration-500 select-none mt-1">
+                  <Link href={`/berita/${berita.id}`} key={berita.id} className="group flex items-start gap-4">
+                    <div className="text-4xl font-black text-gray-100 group-hover:text-[#990000]/10 transition-colors duration-500 mt-1">
                       0{index + 1}
                     </div>
                     <div>
-                      <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1 group-hover:text-red-400 transition-colors">
+                      <span className="text-[10px] font-bold text-[#D4AF37] uppercase tracking-widest block mb-1">
                         {berita.kategori}
                       </span>
-                      <h4 className="text-sm font-bold text-slate-200 mb-2 leading-snug group-hover:text-white transition-colors line-clamp-2">
+                      <h4 className="text-sm font-bold text-gray-800 leading-snug group-hover:text-[#990000] transition-colors line-clamp-2 mb-1">
                         {berita.judul}
                       </h4>
-                      <div className="text-[10px] text-slate-500">
-                        {berita.tanggal}
-                      </div>
+                      <p className="text-[10px] text-gray-500 flex items-center gap-1">
+                        <Eye size={10} /> {berita.views} Kali dibaca
+                      </p>
                     </div>
                   </Link>
                 ))}
               </div>
-            </div>
-          </div>
+            </GlassCard>
+          </>
         )}
 
         {/* ========================================================= */}
-        {/* GRID SEMUA BERITA */}
+        {/* GRID SEMUA BERITA (Merespons Filter) */}
         {/* ========================================================= */}
-        <div className="border-t border-white/5 pt-12">
-          <h2 className="text-xl font-bold text-white mb-8 tracking-wide">
-            {searchQuery ? `Hasil Pencarian: "${searchQuery}"` : activeCategory === "Semua" ? "Daftar Berita" : `Kategori: ${activeCategory}`}
-          </h2>
-
-          <motion.div layout className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <AnimatePresence>
-              {filteredBerita.length > 0 ? (
-                filteredBerita.map((berita) => (
-                  <motion.div
-                    layout
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
-                    transition={{ duration: 0.3 }}
-                    key={berita.id}
-                  >
-                    <Link href={`/berita/${berita.id}`} className="group flex flex-col bg-white/5 border border-white/5 rounded-3xl overflow-hidden hover:bg-white/10 hover:border-white/10 transition-all duration-300 h-full">
-                      
-                      {/* Thumbnail */}
-                      <div className="relative h-48 w-full overflow-hidden">
-                        <img 
-                          src={berita.gambar} 
-                          alt={berita.judul} 
-                          className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700 ease-in-out opacity-80 group-hover:opacity-100" 
-                        />
-                        <div className="absolute inset-0 bg-black/10 transition-colors duration-500"></div>
-                      </div>
-
-                      {/* Konten */}
-                      <div className="p-6 flex flex-col flex-grow">
-                        <div className="flex items-center justify-between mb-3">
-                          <span className="text-[10px] font-bold text-red-500 uppercase tracking-widest">
-                            {berita.kategori}
-                          </span>
-                          <span className="text-[10px] text-slate-500">{berita.tanggal}</span>
-                        </div>
-                        
-                        <h3 className="text-base font-bold text-slate-200 mb-3 leading-snug group-hover:text-white transition-colors line-clamp-2">
-                          {berita.judul}
-                        </h3>
-                        <p className="text-sm text-slate-500 line-clamp-2 mb-6 flex-grow leading-relaxed">
-                          {berita.excerpt}
-                        </p>
-                        
-                        <div className="mt-auto flex items-center text-xs font-semibold text-slate-400 group-hover:text-red-400 transition-colors">
-                          Baca Artikel <ArrowRight className="w-3 h-3 ml-2" />
-                        </div>
-                      </div>
-                    </Link>
-                  </motion.div>
-                ))
-              ) : (
-                <div className="col-span-full py-20 text-center">
-                  <Search className="w-10 h-10 text-slate-600 mx-auto mb-4 opacity-50" />
-                  <h3 className="text-lg font-bold text-white mb-2">Tidak Ditemukan</h3>
-                  <p className="text-slate-500 text-sm">Tidak ada warta yang cocok dengan pencarian ini.</p>
-                </div>
-              )}
-            </AnimatePresence>
-          </motion.div>
+        <div className="md:col-span-12 mt-8 mb-4 border-t border-gray-200 pt-8 flex items-center gap-3">
+          <Newspaper size={24} className="text-[#990000]" />
+          <h3 className="text-2xl font-serif font-bold text-[#1A1A1A]">
+            {searchQuery ? `Hasil: "${searchQuery}"` : activeCategory === "Semua" ? "Daftar Berita" : `Kategori: ${activeCategory}`}
+          </h3>
         </div>
+
+        <motion.div layout className="md:col-span-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          <AnimatePresence>
+            {filteredBerita.length > 0 ? (
+              filteredBerita.map((berita, idx) => (
+                <motion.div
+                  layout
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  transition={{ duration: 0.3 }}
+                  key={berita.id}
+                >
+                  <GlassCard href={`/berita/${berita.id}`} delay={`0.${idx}s`} className="p-0 flex flex-col h-full group">
+                    {/* Thumbnail */}
+                    <div className="relative h-56 w-full overflow-hidden rounded-t-3xl">
+                      <div className="absolute top-4 left-4 z-20">
+                        <span className="px-3 py-1 bg-white/90 backdrop-blur-md text-[#990000] text-[10px] font-bold uppercase tracking-widest rounded-lg shadow-sm">
+                          {berita.kategori}
+                        </span>
+                      </div>
+                      <img 
+                        src={berita.gambar} 
+                        alt={berita.judul} 
+                        className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700 ease-in-out" 
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-[#1A1A1A]/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    </div>
+
+                    {/* Konten Text */}
+                    <div className="p-6 flex flex-col flex-grow bg-white/40">
+                      <div className="flex items-center justify-between text-[11px] font-bold text-gray-500 mb-3">
+                        <span className="flex items-center gap-1.5"><CalendarDays size={12} className="text-[#D4AF37]"/> {berita.tanggal}</span>
+                        <span className="flex items-center gap-1"><Eye size={12}/> {berita.views}</span>
+                      </div>
+                      
+                      <h3 className="text-lg font-serif font-bold text-[#1A1A1A] mb-3 leading-snug group-hover:text-[#990000] transition-colors line-clamp-2">
+                        {berita.judul}
+                      </h3>
+                      
+                      <p className="text-sm text-gray-500 line-clamp-3 mb-6 flex-grow leading-relaxed">
+                        {berita.excerpt}
+                      </p>
+                      
+                      <div className="mt-auto pt-4 border-t border-gray-200 flex items-center font-bold text-xs text-[#1A1A1A] group-hover:text-[#990000] transition-colors">
+                        Baca Selengkapnya <ArrowRight size={14} className="ml-1 group-hover:translate-x-1 transition-transform" />
+                      </div>
+                    </div>
+                  </GlassCard>
+                </motion.div>
+              ))
+            ) : (
+              <div className="col-span-full py-20 text-center flex flex-col items-center justify-center bg-white/50 rounded-3xl border border-gray-200/60 shadow-sm">
+                <Search className="w-12 h-12 text-gray-300 mb-4" />
+                <h3 className="text-xl font-bold text-[#1A1A1A] mb-2">Tidak Ditemukan</h3>
+                <p className="text-gray-500 text-sm max-w-md">Tidak ada berita yang cocok dengan kriteria pencarian atau kategori ini.</p>
+              </div>
+            )}
+          </AnimatePresence>
+        </motion.div>
 
       </div>
     </main>

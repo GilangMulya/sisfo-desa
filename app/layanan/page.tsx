@@ -1,266 +1,207 @@
 "use client";
 
-import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import React, { useState } from 'react';
+import Link from 'next/link';
 import { 
-  Search, 
-  FileText, 
-  Download, 
-  Headset,
-  MessageCircle,
-  Mail,
+  Search,
+  Clock,
+  ChevronRight,
   ArrowRight,
-  CheckCircle2
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
+  FileBadge,
+  ShoppingBag,
+  ShieldCheck,
+  HeartHandshake,
+  FileText
+} from 'lucide-react';
 
-// Simulasi Database Layanan
+// --- BACKGROUND COMPONENT (Premium Light) ---
+const ElegantBackground = () => (
+  <div className="fixed inset-0 z-[-1] bg-[#F9F9FB] overflow-hidden">
+    <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] bg-[#990000]/10 blur-[120px] rounded-full mix-blend-multiply animate-pulse-slow" />
+    <div className="absolute bottom-[-10%] right-[-10%] w-[70%] h-[70%] bg-[#D4AF37]/10 blur-[150px] rounded-full mix-blend-multiply animate-pulse-slow" style={{ animationDelay: '2s' }} />
+    <div className="absolute top-[40%] left-[50%] w-[40%] h-[40%] bg-blue-900/5 blur-[120px] rounded-full mix-blend-multiply" />
+    <div 
+      className="absolute inset-0 opacity-[0.4] mix-blend-color-burn pointer-events-none" 
+      style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")` }}
+    />
+  </div>
+);
+
+// --- REUSABLE PREMIUM GLASS CARD ---
+const GlassCard = ({ children, className = "", href, delay = "0s" }: any) => {
+  const classes = `relative group rounded-3xl bg-white/70 hover:bg-white/90 border border-gray-200/60 hover:border-[#990000]/30 backdrop-blur-2xl transition-all duration-500 overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.02)] hover:shadow-[0_20px_40px_rgba(153,0,0,0.06)] animate-fade-in-up ${href ? 'cursor-pointer hover:-translate-y-1.5' : ''} ${className}`;
+
+  if (href) {
+    return (
+      <Link href={href} className={classes} style={{ animationDelay: delay }}>
+        <div className="absolute inset-0 bg-gradient-to-br from-white/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
+        <div className="relative z-10 h-full">{children}</div>
+      </Link>
+    );
+  }
+
+  return (
+    <div className={classes} style={{ animationDelay: delay }}>
+      <div className="absolute inset-0 bg-gradient-to-br from-white/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
+      <div className="relative z-10 h-full">{children}</div>
+    </div>
+  );
+};
+
+// ==========================================
+// DATABASE LAYANAN (Diadaptasi dari kode lama)
+// ==========================================
 const dataLayanan = [
   {
     id: "pindah-datang",
     title: "Surat Pindah / Datang",
-    shortDesc: "Penerbitan surat pengantar pindah domisili keluar/masuk desa.",
-    fullDesc: "Layanan administrasi ini wajib dilakukan bagi warga yang ingin memindahkan data kependudukan antar desa, kecamatan, maupun provinsi. Surat pengantar dari Nagari ini merupakan syarat mutlak yang akan diproses lebih lanjut oleh Disdukcapil.",
-    persyaratan: [
-      "Bawa Fotokopi KTP dan KK asli pemohon.",
-      "Minta surat pengantar pindah/datang dari RT dan RW setempat.",
-      "Bagi warga datang, sertakan surat keterangan pindah dari desa asal yang dilegalisir.",
-      "Serahkan seluruh berkas ke loket pelayanan Balai Desa pada jam kerja operasional."
-    ],
-    file: "Template_Pindah_Datang.pdf"
+    shortDesc: "Layanan penerbitan surat pengantar bagi warga yang akan pindah domisili keluar desa atau warga baru yang datang ke desa.",
+    time: "2 Hari Kerja",
+    icon: ArrowRight,
   },
   {
     id: "izin-keramaian",
     title: "Surat Izin Keramaian",
-    shortDesc: "Rekomendasi syarat pengajuan izin keramaian ke pihak kepolisian.",
-    fullDesc: "Rekomendasi ini diperlukan untuk menyelenggarakan acara yang mengumpulkan massa dalam jumlah besar seperti hajatan pernikahan, konser musik, pertandingan olahraga, atau pawai budaya di lingkungan Nagari.",
-    persyaratan: [
-      "Fotokopi KTP Penanggung Jawab Acara.",
-      "Surat Pengantar dari Kepala Dusun / RT setempat.",
-      "Proposal kegiatan (khusus untuk acara berskala besar/umum).",
-      "Persetujuan tetangga sekitar lokasi acara (minimal 4 tetangga terdekat)."
-    ],
-    file: "Blanko_Izin_Keramaian.pdf"
+    shortDesc: "Surat pengantar rekomendasi dari pemerintah desa sebagai syarat pengajuan izin keramaian ke pihak kepolisian (Polsek/Polres).",
+    time: "2 Hari Kerja",
+    icon: ShieldCheck,
   },
   {
     id: "ktp-kk",
     title: "Pengantar KTP / KK",
-    shortDesc: "Prasyarat pencetakan dokumen kependudukan di Kecamatan.",
-    fullDesc: "Bagi warga yang baru menginjak usia 17 tahun, kehilangan KTP/KK, atau terdapat perubahan data keluarga (kelahiran/kematian), wajib meminta surat pengantar ini sebelum melakukan pencetakan dokumen baru di instansi terkait.",
-    persyaratan: [
-      "Membawa KK Asli (untuk pembuatan KTP) atau fotokopi KTP orang tua.",
-      "Surat Keterangan Kehilangan dari Kepolisian (jika kasusnya hilang).",
-      "Fotokopi Akta Kelahiran atau Ijazah Terakhir (untuk penyesuaian data)."
-    ],
-    file: "Form_Pengantar_KTP_KK.pdf"
+    shortDesc: "Surat rekomendasi resmi dari desa sebagai prasyarat pencetakan dokumen kependudukan di Kantor Kecamatan/Disdukcapil.",
+    time: "1 Hari Kerja",
+    icon: FileBadge,
   },
   {
     id: "sku",
     title: "Keterangan Usaha (SKU)",
-    shortDesc: "Keterangan resmi kepemilikan usaha mikro/kecil aktif di desa.",
-    fullDesc: "SKU sering digunakan oleh pelaku UMKM sebagai syarat pencairan Kredit Usaha Rakyat (KUR) di bank, pengajuan bantuan modal pemerintah, atau pendaftaran izin usaha lanjutan.",
-    persyaratan: [
-      "Fotokopi KTP dan KK pemohon.",
-      "Foto tempat/lokasi usaha yang sedang berjalan.",
-      "Surat Pengantar dari RT/RW setempat yang membenarkan keberadaan usaha."
-    ],
-    file: "Formulir_SKU_Nagari.pdf"
+    shortDesc: "Surat keterangan resmi yang menerangkan bahwa pemohon memiliki usaha mikro/kecil aktif di wilayah administrasi desa.",
+    time: "1 Hari Kerja",
+    icon: ShoppingBag,
   },
   {
     id: "sktm",
     title: "Keterangan Tidak Mampu",
-    shortDesc: "Dokumen keringanan biaya pendidikan, kesehatan, & bansos.",
-    fullDesc: "SKTM dikeluarkan oleh Pemerintah Nagari setelah melalui proses verifikasi lapangan. Surat ini ditujukan untuk memastikan program bantuan sosial, beasiswa, atau keringanan medis jatuh kepada warga yang benar-benar berhak.",
-    persyaratan: [
-      "Fotokopi KTP dan KK Kepala Keluarga.",
-      "Surat Pengantar dari RT/RW setempat.",
-      "Foto kondisi rumah (tampak depan, ruang tamu, dapur).",
-      "Bersedia disurvei langsung oleh perangkat desa."
-    ],
-    file: "Blanko_SKTM_Update.pdf"
+    shortDesc: "Dokumen keringanan biaya untuk keperluan pendidikan, kesehatan, maupun jaminan sosial bagi keluarga prasejahtera.",
+    time: "1 Hari Kerja",
+    icon: HeartHandshake,
   }
 ];
 
 export default function LayananPublik() {
   const [searchTerm, setSearchTerm] = useState("");
-  // Default langsung memilih layanan pertama agar layar kanan tidak kosong
-  const [activeLayananId, setActiveLayananId] = useState<string>(dataLayanan[0].id); 
 
+  // Logika Pencarian Layanan
   const filteredLayanan = dataLayanan.filter(layanan => 
     layanan.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
     layanan.shortDesc.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Mendapatkan data lengkap dari layanan yang sedang aktif
-  const activeData = dataLayanan.find(l => l.id === activeLayananId) || dataLayanan[0];
-
   return (
-    <main className="relative min-h-screen bg-[#050505] overflow-hidden pt-32 pb-24 font-sans text-slate-300">
+    <main className="relative min-h-screen text-[#1A1A1A] selection:bg-[#990000] selection:text-white pt-32 pb-24 px-4 md:px-6 max-w-[1400px] mx-auto">
       
-      {/* Background Ambient */}
-      <div className="absolute top-1/4 right-0 w-[600px] h-[600px] bg-red-600/10 rounded-full blur-[150px] mix-blend-screen pointer-events-none z-0"></div>
-      <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 pointer-events-none z-0"></div>
+      {/* Injecting CSS Animations & Fonts */}
+      <style dangerouslySetInnerHTML={{__html: `
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,800;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+        .font-serif { font-family: 'Playfair Display', serif; }
+        .font-sans { font-family: 'Plus Jakarta Sans', sans-serif; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in-up { opacity: 0; animation: fadeInUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        @keyframes pulseSlow { 0%, 100% { transform: scale(1); opacity: 0.6; } 50% { transform: scale(1.05); opacity: 0.3; } }
+        .animate-pulse-slow { animation: pulseSlow 8s infinite ease-in-out; }
+      `}} />
 
-      <div className="container relative z-10 mx-auto max-w-7xl px-4">
+      <ElegantBackground />
+
+      {/* ========================================================= */}
+      {/* HEADER SECTION */}
+      {/* ========================================================= */}
+      <div className="mb-10 text-center animate-fade-in-up mt-10">
+        <p className="text-xs font-bold tracking-[0.3em] text-[#990000] uppercase mb-3">Portal Warga</p>
+        <h2 className="text-5xl md:text-7xl font-serif font-bold text-[#1A1A1A] mb-6">Layanan Administrasi</h2>
+        <div className="w-24 h-1 bg-gradient-to-r from-[#990000] to-[#D4AF37] mx-auto rounded-full" />
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-5 auto-rows-min relative z-10">
         
-        {/* HEADER */}
-        <div className="mb-12">
-          <span className="inline-block px-4 py-1.5 bg-red-500/10 text-red-400 rounded-full text-xs font-bold tracking-widest uppercase mb-4 border border-red-500/20">
-            Sistem Administrasi Terpadu
-          </span>
-          <h1 className="text-4xl md:text-5xl font-extrabold text-white tracking-tight">
-            Portal Layanan <span className="text-red-500">Publik</span>
-          </h1>
-        </div>
+        {/* ========================================================= */}
+        {/* PENCARIAN & ACTION BANNER */}
+        {/* ========================================================= */}
+        <GlassCard delay="0.1s" className="md:col-span-12 p-3 bg-white/90 flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="flex-1 w-full relative">
+            <Search size={22} className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400" />
+            <input 
+              type="text" 
+              placeholder="Cari layanan administrasi... (misal: Surat Pindah, KTP)" 
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-16 pr-6 py-4 bg-transparent border-none outline-none text-[#1A1A1A] text-lg font-medium placeholder:text-gray-400 focus:ring-0"
+            />
+          </div>
+          <button className="w-full md:w-auto px-10 py-4 bg-[#1A1A1A] hover:bg-[#990000] text-white rounded-2xl font-bold transition-all shadow-[0_10px_20px_rgba(0,0,0,0.1)] hover:shadow-[0_10px_20px_rgba(153,0,0,0.2)] whitespace-nowrap m-1">
+            Cek Status Permohonan
+          </button>
+        </GlassCard>
 
         {/* ========================================================= */}
-        {/* SPLIT-VIEW COMMAND CENTER LAYOUT */}
+        {/* ALUR PROSEDUR PENGURUSAN */}
         {/* ========================================================= */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-24">
-          
-          {/* KOLOM KIRI: Search & Daftar Layanan (Scrollable) */}
-          <div className="lg:col-span-5 flex flex-col gap-6">
-            
-            {/* Search Bar */}
-            <div className="relative group">
-              <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
-                <Search className="h-5 w-5 text-slate-400 group-focus-within:text-red-500 transition-colors" />
-              </div>
-              <input
-                type="text"
-                placeholder="Cari layanan (mis: KTP, Pindah)..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full bg-white/5 border border-white/10 text-white rounded-2xl py-4 pl-12 pr-4 focus:outline-none focus:border-red-500/50 focus:bg-white/10 transition-all shadow-lg backdrop-blur-md"
-              />
-            </div>
-
-            {/* List Layanan */}
-            <div className="flex flex-col gap-3 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
-              {filteredLayanan.length > 0 ? (
-                filteredLayanan.map((layanan) => {
-                  const isActive = activeLayananId === layanan.id;
-                  
-                  return (
-                    <div 
-                      key={layanan.id}
-                      onClick={() => setActiveLayananId(layanan.id)}
-                      className={`cursor-pointer p-5 rounded-2xl border transition-all duration-300 flex items-center justify-between group ${
-                        isActive 
-                          ? "bg-red-500/10 border-red-500/50 shadow-[0_0_20px_rgba(220,38,38,0.1)]" 
-                          : "bg-white/5 border-white/5 hover:border-white/20 hover:bg-white/10"
-                      }`}
-                    >
-                      <div className="flex items-center gap-4">
-                        <div className={`p-2.5 rounded-xl transition-colors ${isActive ? "bg-red-600 text-white" : "bg-white/5 text-slate-400 group-hover:text-white"}`}>
-                          <FileText className="w-5 h-5" />
-                        </div>
-                        <div>
-                          <h3 className={`font-bold text-base transition-colors ${isActive ? "text-white" : "text-slate-300 group-hover:text-white"}`}>
-                            {layanan.title}
-                          </h3>
-                          <p className="text-xs text-slate-500 mt-1 line-clamp-1">{layanan.shortDesc}</p>
-                        </div>
-                      </div>
-                      {isActive && (
-                        <motion.div layoutId="activeIndicator" className="w-1.5 h-8 bg-red-500 rounded-full" />
-                      )}
-                    </div>
-                  );
-                })
-              ) : (
-                <div className="text-center py-10">
-                  <Search className="w-8 h-8 text-slate-600 mx-auto mb-3" />
-                  <p className="text-slate-400 text-sm">Layanan tidak ditemukan.</p>
+        <div className="md:col-span-12 mt-8 mb-4 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+          <h3 className="text-xl font-bold text-[#1A1A1A] mb-5">Prosedur Pengurusan Online</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+            {['Pilih Layanan & Isi Form', 'Unggah Syarat (KTP/KK)', 'Verifikasi Perangkat Nagari', 'Dokumen Selesai/Diambil'].map((step, i) => (
+              <div key={i} className="bg-white/60 backdrop-blur-md border border-gray-200/60 rounded-2xl p-5 flex items-center gap-4 relative shadow-sm">
+                <div className="w-10 h-10 rounded-full bg-[#990000]/10 text-[#990000] flex items-center justify-center font-black text-lg shrink-0">
+                  {i + 1}
                 </div>
-              )}
-            </div>
-          </div>
-
-          {/* KOLOM KANAN: Panel Detail Dinamis */}
-          <div className="lg:col-span-7">
-            <div className="bg-white/5 border border-white/10 rounded-[32px] p-8 md:p-10 backdrop-blur-xl h-full relative overflow-hidden">
-              
-              {/* Efek Garis Kaca di Kanan Panel */}
-              <div className="absolute top-0 right-0 w-32 h-full bg-gradient-to-l from-white/[0.02] to-transparent pointer-events-none"></div>
-
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={activeData.id}
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
-                  transition={{ duration: 0.3, ease: "easeInOut" }}
-                  className="relative z-10 h-full flex flex-col"
-                >
-                  <div className="flex items-start justify-between gap-4 mb-8 border-b border-white/10 pb-8">
-                    <div>
-                      <span className="px-3 py-1 bg-red-500/10 text-red-400 rounded-md text-[10px] font-extrabold tracking-widest uppercase mb-4 inline-block">
-                        Detail Layanan
-                      </span>
-                      <h2 className="text-3xl font-bold text-white mb-3">{activeData.title}</h2>
-                      <p className="text-slate-400 text-sm leading-relaxed max-w-xl">
-                        {activeData.fullDesc}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex-grow">
-                    <h4 className="text-xs font-bold tracking-widest text-slate-500 uppercase mb-5">
-                      Persyaratan Wajib
-                    </h4>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {activeData.persyaratan.map((syarat, idx) => (
-                        <div key={idx} className="flex gap-4 items-start bg-white/5 border border-white/5 p-4 rounded-2xl hover:bg-white/10 hover:border-white/10 transition-colors">
-                          <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
-                          <p className="text-sm text-slate-300">{syarat}</p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Panel Download di Bagian Bawah */}
-                  <div className="mt-10 bg-gradient-to-r from-[#0a0a0a] to-transparent border border-white/10 rounded-2xl p-6 flex flex-col sm:flex-row items-center justify-between gap-6">
-                    <div className="flex items-center gap-4">
-                      <div className="p-3 bg-red-500/20 rounded-xl text-red-500">
-                        <FileText className="w-6 h-6" />
-                      </div>
-                      <div>
-                        <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Dokumen Lampiran</p>
-                        <p className="text-sm font-bold text-white truncate max-w-[200px]">{activeData.file}</p>
-                      </div>
-                    </div>
-                    <Button className="w-full sm:w-auto bg-white text-black hover:bg-slate-200 rounded-xl font-bold px-6 py-5">
-                      <Download className="w-4 h-4 mr-2" /> Unduh Formulir
-                    </Button>
-                  </div>
-
-                </motion.div>
-              </AnimatePresence>
-
-            </div>
-          </div>
-
-        </div>
-
-        {/* PUSAT BANTUAN */}
-        <div className="relative bg-gradient-to-r from-red-950/80 to-[#0a0a0a] border border-red-500/20 rounded-[32px] p-8 md:p-12 overflow-hidden flex flex-col md:flex-row items-center justify-between gap-8 group">
-          <div className="absolute right-0 top-0 w-64 h-64 bg-red-600/10 rounded-full blur-[80px] -z-10 group-hover:bg-red-600/20 transition-colors duration-700"></div>
-          <Headset className="absolute -right-10 -bottom-10 w-64 h-64 text-white/[0.03] -rotate-12 -z-10 group-hover:scale-110 transition-transform duration-700" />
-          <div className="max-w-xl z-10 text-center md:text-left">
-            <span className="text-red-400 font-bold tracking-widest text-xs uppercase mb-3 block">Pusat Bantuan Terpadu</span>
-            <h2 className="text-3xl md:text-4xl font-extrabold text-white mb-4">Butuh Bantuan Layanan?</h2>
-            <p className="text-slate-400 text-sm md:text-base leading-relaxed">Jika layanan yang Anda cari belum tersedia atau mengalami kendala teknis, jangan ragu untuk menghubungi admin kami.</p>
-          </div>
-          <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto shrink-0 z-10">
-            <Button className="bg-emerald-500 hover:bg-emerald-600 text-white rounded-full px-8 py-6 h-auto text-base transition-all hover:-translate-y-1">
-              <MessageCircle className="w-5 h-5 mr-2" /> WhatsApp
-            </Button>
-            <Button variant="outline" className="bg-white/5 border-white/10 hover:bg-white/10 text-white rounded-full px-8 py-6 h-auto text-base transition-all hover:-translate-y-1">
-              <Mail className="w-5 h-5 mr-2" /> Email
-            </Button>
+                <span className="text-sm font-bold text-gray-800 leading-snug">{step}</span>
+                {i < 3 && <ChevronRight size={18} className="text-gray-300 absolute -right-3 hidden md:block z-10 bg-[#F9F9FB] rounded-full" />}
+              </div>
+            ))}
           </div>
         </div>
+
+        {/* ========================================================= */}
+        {/* GRID KARTU LAYANAN */}
+        {/* ========================================================= */}
+        {filteredLayanan.length > 0 ? (
+          filteredLayanan.map((srv, idx) => (
+            <GlassCard 
+              key={srv.id} 
+              href={`/layanan/${srv.id}`} 
+              delay={`0.${3 + idx}s`} 
+              className="md:col-span-4 p-8 flex flex-col group hover:bg-white transition-colors"
+            >
+              <div className="flex justify-between items-start mb-6">
+                <div className="w-14 h-14 rounded-2xl bg-gray-100 group-hover:bg-[#990000] flex items-center justify-center transition-colors duration-300">
+                  <srv.icon size={26} className="text-gray-500 group-hover:text-white transition-colors duration-300" />
+                </div>
+                <div className="flex items-center gap-1.5 text-[10px] font-bold text-[#D4AF37] bg-[#D4AF37]/10 px-3 py-1.5 rounded-lg border border-[#D4AF37]/20">
+                  <Clock size={12} /> {srv.time}
+                </div>
+              </div>
+              <h4 className="text-xl font-bold text-[#1A1A1A] mb-3">{srv.title}</h4>
+              <p className="text-sm text-gray-500 leading-relaxed mb-8 flex-1">
+                {srv.shortDesc}
+              </p>
+              <div className="pt-5 border-t border-gray-100">
+                <div className="w-full py-3 bg-gray-50 group-hover:bg-[#990000]/5 text-gray-600 group-hover:text-[#990000] border border-gray-200 rounded-xl text-sm font-bold transition-colors flex justify-center items-center gap-2">
+                  Urus Online <ArrowRight size={16} />
+                </div>
+              </div>
+            </GlassCard>
+          ))
+        ) : (
+          /* Empty State Jika Pencarian Tidak Ditemukan */
+          <div className="md:col-span-12 py-20 text-center animate-fade-in-up">
+             <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Search size={32} className="text-gray-400" />
+             </div>
+             <h3 className="text-2xl font-bold text-[#1A1A1A] mb-2">Layanan Tidak Ditemukan</h3>
+             <p className="text-gray-500">Coba gunakan kata kunci pencarian yang lain.</p>
+          </div>
+        )}
 
       </div>
     </main>
